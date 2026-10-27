@@ -1,3 +1,5 @@
 allowBuilds:
-  # postinstall только докачивает нативный бинарник, он уже приходит через optionalDependencies
+  # postinstall-скрипты только докачивают/проверяют нативные бинарники,
+  # а они уже приходят через optionalDependencies (@unrs/resolver-binding-*, @esbuild/*)
   unrs-resolver: false
+  esbuild: false

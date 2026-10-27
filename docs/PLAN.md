@@ -51,15 +51,15 @@
 База — PostgreSQL в **Neon**, подключённая через Vercel (Storage → Neon). Vercel сам прописывает переменные окружения в проект.
 
 - [x] База Neon создана через Vercel (регион Frankfurt) и подключена к проекту для окружений Development, Preview, Production.
-- [ ] Ветка `dev` в Neon для локальной разработки; локальный `.env` указывает на неё: `DATABASE_URL` (pooled, для приложения) и `DATABASE_URL_UNPOOLED` (direct, для миграций и сида). В `.env.example` — обе переменные с пустыми значениями.
-- [ ] Установить `drizzle-orm`, `drizzle-kit`, драйвер `postgres` (postgres.js), `zod`, `server-only`, `tsx`.
-- [ ] Валидация переменных окружения в `shared/config/env.ts` (Zod).
-- [ ] `drizzle.config.ts` на `DATABASE_URL_UNPOOLED` (загрузка `.env` через `process.loadEnvFile()`), `casing: "snake_case"`.
-- [ ] Клиент БД в `shared/db/client.ts`: `server-only`, `DATABASE_URL`, `prepare: false` (пул Neon в режиме транзакций).
-- [ ] Схема таблицы `users` в `shared/db/schema`, первая миграция (`db:generate` → `db:migrate`).
-- [ ] Сид `shared/db/seed.ts` (через `tsx`, на `DATABASE_URL_UNPOOLED`): демо-пользователь «Демо-пользователь», `demo@sub-tracker.local`; повторный запуск не создаёт дубликат.
-- [ ] Скрипты `db:generate`, `db:migrate`, `db:seed`, `db:studio`, обновить «Команды» в `AGENTS.md`.
-- [ ] Миграции и сид применены к production-ветке Neon (вручную, после согласования с пользователем).
+- [x] Ветка `dev` в Neon для локальной разработки; локальный `.env` указывает на неё: `DATABASE_URL` (pooled, для приложения) и `DATABASE_URL_UNPOOLED` (direct, для миграций и сида). В `.env.example` — обе переменные с пустыми значениями.
+- [x] Установить `drizzle-orm`, `drizzle-kit`, драйвер `postgres` (postgres.js), `zod`, `server-only`, `tsx`.
+- [x] Валидация переменных окружения в `shared/config/env.ts` (Zod).
+- [x] `drizzle.config.ts` на `DATABASE_URL_UNPOOLED` (загрузка `.env` через `process.loadEnvFile()`), `casing: "snake_case"`.
+- [x] Клиент БД в `shared/db/client.ts`: `server-only`, `DATABASE_URL`, `prepare: false` (пул Neon в режиме транзакций).
+- [x] Схема таблицы `users` в `shared/db/schema`, первая миграция (`db:generate` → `db:migrate`).
+- [x] Сид `shared/db/seed.ts` (через `tsx`, на `DATABASE_URL_UNPOOLED`): демо-пользователь «Демо-пользователь», `demo@sub-tracker.local`; повторный запуск не создаёт дубликат.
+- [x] Скрипты `db:generate`, `db:migrate`, `db:seed`, `db:studio`, обновить «Команды» в `AGENTS.md`.
+- [x] Миграции и сид применены к production-ветке Neon (вручную, после согласования с пользователем).
 
 **Готово, когда:** `pnpm db:migrate` и `pnpm db:seed` на чистой ветке `dev` отрабатывают без ошибок, повторный `pnpm db:seed` не создаёт дубликат, в таблице `users` есть демо-пользователь; production-ветка в том же состоянии; `pnpm build` без ошибок.
 

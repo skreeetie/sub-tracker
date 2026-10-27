@@ -34,12 +34,12 @@
 | `pnpm lint:fsd` | Проверка правил FSD (steiger, конфиг — `steiger.config.mts`; слой `views` не проверяется) |
 | `pnpm test` | Unit-тесты (Vitest, один прогон) |
 | `pnpm test:watch` | Unit-тесты в watch-режиме |
-| `pnpm db:generate` | Сгенерировать миграцию по изменениям схемы *(этап 4)* |
-| `pnpm db:migrate` | Применить миграции к базе *(этап 4)* |
-| `pnpm db:seed` | Создать демо-пользователя, повторный запуск безопасен *(этап 4)* |
-| `pnpm db:studio` | Drizzle Studio — веб-просмотр базы *(этап 4)* |
+| `pnpm db:generate` | Сгенерировать миграцию по изменениям схемы |
+| `pnpm db:migrate` | Применить миграции к базе (по `DATABASE_URL_UNPOOLED`) |
+| `pnpm db:seed` | Создать демо-пользователя, повторный запуск безопасен |
+| `pnpm db:studio` | Drizzle Studio — веб-просмотр базы |
 
-Тесты — файлы `src/**/*.test.ts` рядом с тестируемым кодом, конфиг — `vitest.config.ts` (алиас `@/*` → `src/*`).
+Тесты — файлы `src/**/*.test.ts` рядом с тестируемым кодом, конфиг — `vitest.config.mts` (алиас `@/*` → `src/*`).
 
 Переменные окружения — в `.env` (шаблон — `.env.example`):
 - `DATABASE_URL` — pooled-подключение к Neon, использует приложение;
@@ -48,6 +48,8 @@
 Локальный `.env` указывает на ветку `dev` в Neon, production — на основную ветку.
 
 Никогда не выводи значения этих переменных в лог, чат или код.
+Переменные читаются только через `@/shared/config/env` (`getAppEnv()` / `getMigrationEnv()`); скрипты вне Next подгружают `.env` через `loadLocalEnvFile()` — заданные в shell значения важнее `.env`.
+В серверном коде база — через `import { db } from "@/shared/db"`; в скриптах (сид) `@/shared/db` не импортировать — клиент помечен `server-only`.
 
 Установку postinstall-скриптов зависимостей pnpm разрешает явно, через `allowBuilds` в `pnpm-workspace.yaml`.
 
