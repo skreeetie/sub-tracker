@@ -10,7 +10,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
       <AppHeader
         homeHref={routes.home}
         actions={
-          // Заглушка до этапа 4: вход в демо-аккаунт через features/auth.
+          // Заглушка до этапа 5: вход в демо-аккаунт через features/auth.
           <Link href={routes.dashboard} className={buttonClassName({ size: "sm" })}>
             Войти
           </Link>

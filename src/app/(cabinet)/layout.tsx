@@ -12,7 +12,7 @@ export default function CabinetLayout({ children }: { children: ReactNode }) {
       <AppHeader
         homeHref={routes.dashboard}
         actions={
-          // Заглушка до этапа 4: имя из сессии и выход через features/auth.
+          // Заглушка до этапа 5: имя из сессии и выход через features/auth.
           <>
             <span className="hidden text-sm text-muted sm:inline">Демо-пользователь</span>
             <Link href={routes.home} className={buttonClassName({ variant: "ghost", size: "sm" })}>

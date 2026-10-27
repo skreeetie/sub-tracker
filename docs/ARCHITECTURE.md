@@ -84,9 +84,9 @@ sub-tracker/
 │       ├── lib/                     # date, money, cn, ...
 │       ├── config/                  # env (валидация переменных окружения), константы
 │       └── db/                      # клиент БД (server-only) + Drizzle-схема
-│           ├── client.ts
+│           ├── client.ts            # pooled-подключение для приложения
 │           ├── schema/              # users.ts, subscriptions.ts, enums.ts, index.ts
-│           └── seed.ts
+│           └── seed.ts              # сид демо-данных (запуск через tsx)
 ├── .env.example
 ├── drizzle.config.ts
 └── vitest.config.ts
@@ -141,6 +141,15 @@ sub-tracker/
 8. **Переменные окружения** читаются и валидируются в одном месте — `shared/config/env.ts`.
 9. **Тесты** — Vitest, файлы `*.test.ts` рядом с тестируемым кодом. Основной фокус — `lib`-сегменты и схемы валидации.
 10. **ORM — Drizzle.** Схема описана на TypeScript в `shared/db/schema` (это инфраструктура, а не бизнес-логика, поэтому она в `shared`, а не в `entities` — иначе FK между `subscriptions` и `users` потребовал бы кросс-импорта сущностей). Миграции генерируются `drizzle-kit generate` в `drizzle/` и применяются `drizzle-kit migrate`; `drizzle-kit push` не используется. Сущности (`entities/*/api`) работают с БД через клиент из `shared/db` и отдают наружу доменные типы.
+   Файлы схемы импортируют друг друга относительными путями (drizzle-kit не понимает алиас `@/`).
+11. **База — PostgreSQL в Neon**, подключённая через Vercel Marketplace (Vercel сам прописывает переменные во все окружения проекта). Две строки подключения:
+    - `DATABASE_URL` — pooled (хост с `-pooler`), для приложения; драйвер `postgres` с `prepare: false`, т.к. пул работает в режиме транзакций;
+    - `DATABASE_URL_UNPOOLED` — direct, для `drizzle-kit` (миграции) и сида.
+    Драйвер — обычный `postgres` (postgres.js), не привязан к Neon; переход на `@neondatabase/serverless` (edge) затронет только `shared/db/client.ts`.
+    `.env` в приложении читает Next, в `drizzle.config.ts` и сиде — `process.loadEnvFile()` (без `dotenv`).
+    Ветки Neon: production-деплой работает с основной веткой, локальная разработка — с веткой `dev` (локальный `.env` указывает на неё).
+12. **Хостинг — Vercel**, регион функций `fra1` (рядом с базой Neon во Франкфурте). Пуш в `main` = production-деплой, остальные ветки и PR — preview-деплои. Сборка на pnpm из `packageManager` (`ENABLE_EXPERIMENTAL_COREPACK=1`).
+13. **Миграции на production применяются вручную** (`pnpm db:migrate` с production-строкой подключения), а не в сборке Vercel: ошибка миграции не ломает деплой и не меняет базу без ведома пользователя.
 
 ## 5. Зависимости
 
@@ -150,13 +159,15 @@ sub-tracker/
 |---|---|---|
 | `vitest` | unit-тесты | 1 |
 | `steiger`, `@feature-sliced/steiger-plugin` | проверка правил FSD | 2 |
-| `drizzle-orm`, `drizzle-kit`, драйвер Postgres | ORM и миграции | 3 |
-| `zod` | валидация env и форм | 3 |
-| `server-only` | защита серверного кода от попадания в клиент | 3 |
-| `recharts` | графики на дашборде | 7 |
+| `drizzle-orm`, `drizzle-kit` | ORM и миграции | 4 |
+| `postgres` (postgres.js) | драйвер PostgreSQL | 4 |
+| `zod` | валидация env и форм | 4 |
+| `server-only` | защита серверного кода от попадания в клиент | 4 |
+| `tsx` | запуск TS-скриптов (сид) | 4 |
+| `recharts` | графики на дашборде | 8 |
 
 Любые другие зависимости — только после согласования.
 
 ## 6. Открытые вопросы
 
-- **Локальный PostgreSQL без Docker** — способ установки выбираем на этапе 3 (Homebrew `postgresql@17`, Postgres.app или облачный Neon).
+Нет.

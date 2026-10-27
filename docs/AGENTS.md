@@ -9,7 +9,8 @@
 | Фреймворк | Next.js 16 (App Router), React 19 |
 | Язык | TypeScript (`strict: true`) |
 | Стили | Tailwind CSS v4 (через `@tailwindcss/turbopack`) |
-| База данных | PostgreSQL |
+| База данных | PostgreSQL в облаке Neon, подключена через Vercel (драйвер `postgres`) |
+| Хостинг | Vercel |
 | ORM | Drizzle ORM + drizzle-kit (миграции) |
 | Валидация | Zod |
 | Графики | Recharts |
@@ -33,12 +34,32 @@
 | `pnpm lint:fsd` | Проверка правил FSD (steiger, конфиг — `steiger.config.mts`; слой `views` не проверяется) |
 | `pnpm test` | Unit-тесты (Vitest, один прогон) |
 | `pnpm test:watch` | Unit-тесты в watch-режиме |
+| `pnpm db:generate` | Сгенерировать миграцию по изменениям схемы *(этап 4)* |
+| `pnpm db:migrate` | Применить миграции к базе *(этап 4)* |
+| `pnpm db:seed` | Создать демо-пользователя, повторный запуск безопасен *(этап 4)* |
+| `pnpm db:studio` | Drizzle Studio — веб-просмотр базы *(этап 4)* |
 
 Тесты — файлы `src/**/*.test.ts` рядом с тестируемым кодом, конфиг — `vitest.config.ts` (алиас `@/*` → `src/*`).
+
+Переменные окружения — в `.env` (шаблон — `.env.example`):
+- `DATABASE_URL` — pooled-подключение к Neon, использует приложение;
+- `DATABASE_URL_UNPOOLED` — прямое подключение, используют миграции и сид.
+
+Локальный `.env` указывает на ветку `dev` в Neon, production — на основную ветку.
+
+Никогда не выводи значения этих переменных в лог, чат или код.
 
 Установку postinstall-скриптов зависимостей pnpm разрешает явно, через `allowBuilds` в `pnpm-workspace.yaml`.
 
 Список будет дополняться (миграции, сиды, БД) по мере прохождения этапов `PLAN.md`.
+
+## Деплой
+
+- Хостинг — Vercel: https://sub-tracker-iota.vercel.app
+- **Пуш в `main` сразу уходит в production.** Пушить в `main` только то, что прошло `pnpm lint`, `pnpm lint:fsd`, `pnpm test` и `pnpm build`.
+- Остальные ветки и PR получают preview-деплои.
+- Переменные окружения production (`DATABASE_URL`, `DATABASE_URL_UNPOOLED`) задаются в Vercel, не в репозитории.
+- Миграции к production-базе применяются вручную и только после согласования с пользователем — в сборку Vercel они не встроены.
 
 ## Правила работы
 

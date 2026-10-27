@@ -2,7 +2,7 @@ import { Badge } from "@/shared/ui/badge";
 import { Card } from "@/shared/ui/card";
 import { PageHeader } from "@/shared/ui/page-header";
 
-// Заглушка до этапа 4: данные придут из сессии.
+// Заглушка до этапа 5: данные придут из сессии.
 const profile = [
   { label: "Имя", value: "Демо-пользователь" },
   { label: "Email", value: "demo@sub-tracker.local" },
