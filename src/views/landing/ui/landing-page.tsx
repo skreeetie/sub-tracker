@@ -1,7 +1,8 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/entities/session";
-import { LoginButton } from "@/features/auth";
 import { routes } from "@/shared/config";
+import { buttonClassName } from "@/shared/ui/button";
 import { UpcomingPreview } from "./upcoming-preview";
 
 export async function LandingPage() {
@@ -20,9 +21,13 @@ export async function LandingPage() {
           Внесите сервисы, на которые подписаны. Sub Tracker посчитает траты по месяцам и категориям
           и за неделю напомнит о продлении.
         </p>
-        <div className="mt-8 flex flex-col items-start gap-3">
-          <LoginButton className="h-12 px-6 text-base">Войти в демо-аккаунт</LoginButton>
-          <p className="text-sm text-muted">Без регистрации: откроется тестовый аккаунт.</p>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Link href={routes.signUp} className={buttonClassName({ size: "lg" })}>
+            Зарегистрироваться
+          </Link>
+          <Link href={routes.signIn} className={buttonClassName({ variant: "secondary", size: "lg" })}>
+            Войти
+          </Link>
         </div>
       </div>
       <UpcomingPreview />

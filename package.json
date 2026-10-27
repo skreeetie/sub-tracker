@@ -13,10 +13,10 @@
     "lint:fsd": "steiger ./src",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx src/shared/db/seed.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@neondatabase/auth": "0.7.0-beta",
     "drizzle-orm": "^0.45.4",
     "next": "16.4.3",
     "postgres": "^3.4.9",
@@ -37,7 +37,6 @@
     "eslint-config-next": "16.4.3",
     "steiger": "^0.8.0",
     "tailwindcss": "^4",
-    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^5.0.5"
   }

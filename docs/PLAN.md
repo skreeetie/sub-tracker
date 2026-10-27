@@ -143,14 +143,14 @@
 
 Решения: вход по email + паролю и через Google, обязательное подтверждение email, демо-аккаунт удаляется вместе с подписками.
 
-- [ ] Пользователь включает Neon Auth для основной ветки и ветки `dev`, настраивает Google OAuth и подтверждение email; переменные `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` — в `.env` (ветка `dev`) и Vercel (основная ветка).
-- [ ] Установить `@neondatabase/auth`, обработчик `app/api/auth/[...path]`, `proxy.ts` для защиты кабинета; валидация новых переменных в `shared/config/env.ts`.
-- [ ] `entities/session`: текущий пользователь — из сессии Neon Auth; `getCurrentUser()` / `requireUser()` сохраняют свой контракт.
-- [ ] Связь пользователя Neon Auth с таблицей `users` (основная валюта) и подписками; миграция схемы.
-- [ ] `features/auth`: страницы регистрации и входа (email + пароль, Google), подтверждение email, выход.
-- [ ] Убрать демо-вход: кнопку, `demoUser`, сид; удалить демо-пользователя и его подписки (миграцией) в `dev` и production.
-- [ ] Обновить SPEC (раздел 1), ARCHITECTURE (решение 6 о моковой авторизации), AGENTS (команды, переменные).
-- [ ] Миграции этапа применены к production-ветке Neon — вручную, до пуша в `main`.
+- [x] Пользователь включает Neon Auth для основной ветки и ветки `dev` (Google — общие ключи Neon, см. ARCHITECTURE, решение 6), подтверждение email, trusted domain production; переменные `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` — в `.env` (ветка `dev`) и Vercel (основная ветка).
+- [x] Установить `@neondatabase/auth`, обработчик `app/api/auth/[...path]`, `proxy.ts` для защиты кабинета; валидация новых переменных в `shared/config/env.ts`.
+- [x] `entities/session`: текущий пользователь — из сессии Neon Auth; `getCurrentUser()` / `requireUser()` сохраняют свой контракт.
+- [x] Связь пользователя Neon Auth с таблицей `users` (основная валюта) и подписками; миграция схемы.
+- [x] `features/auth`: страницы регистрации и входа (email + пароль, Google), подтверждение email, выход.
+- [x] Убрать демо-вход: кнопку, `demoUser`, сид; удалить демо-пользователя и его подписки (миграцией) в `dev` и production.
+- [x] Обновить SPEC (раздел 1), ARCHITECTURE (решение 6 о моковой авторизации), AGENTS (команды, переменные).
+- [x] Миграции этапа применены к production-ветке Neon — вручную, до пуша в `main`.
 
 ---
 

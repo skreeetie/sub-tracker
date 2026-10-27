@@ -3,3 +3,5 @@ allowBuilds:
   # а они уже приходят через optionalDependencies (@unrs/resolver-binding-*, @esbuild/*)
   unrs-resolver: false
   esbuild: false
+  # postinstall только печатает сообщение о спонсорстве (зависимость @neondatabase/auth)
+  core-js: false

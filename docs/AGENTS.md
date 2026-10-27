@@ -37,20 +37,22 @@
 | `pnpm test:watch` | Unit-тесты в watch-режиме |
 | `pnpm db:generate` | Сгенерировать миграцию по изменениям схемы |
 | `pnpm db:migrate` | Применить миграции к базе (по `DATABASE_URL_UNPOOLED`) |
-| `pnpm db:seed` | Создать демо-пользователя, повторный запуск безопасен |
 | `pnpm db:studio` | Drizzle Studio — веб-просмотр базы |
 
 Тесты — файлы `src/**/*.test.ts` рядом с тестируемым кодом, конфиг — `vitest.config.mts` (алиас `@/*` → `src/*`).
 
 Переменные окружения — в `.env` (шаблон — `.env.example`):
 - `DATABASE_URL` — pooled-подключение к Neon, использует приложение;
-- `DATABASE_URL_UNPOOLED` — прямое подключение, используют миграции и сид.
+- `DATABASE_URL_UNPOOLED` — прямое подключение, используют миграции;
+- `NEON_AUTH_BASE_URL` — адрес Neon Auth ветки (Neon → Settings → Auth);
+- `NEON_AUTH_COOKIE_SECRET` — секрет подписи cookie сессии, не короче 32 символов (`openssl rand -base64 32`).
 
 Локальный `.env` указывает на ветку `dev` в Neon, production — на основную ветку.
 
 Никогда не выводи значения этих переменных в лог, чат или код.
-Переменные читаются только через `@/shared/config/env` (`getAppEnv()` / `getMigrationEnv()`); скрипты вне Next подгружают `.env` через `loadLocalEnvFile()` — заданные в shell значения важнее `.env`.
-В серверном коде база — через `import { db } from "@/shared/db"`; в скриптах (сид) `@/shared/db` не импортировать — клиент помечен `server-only`.
+Переменные читаются только через `@/shared/config/env` (`getAppEnv()` / `getAuthEnv()` / `getMigrationEnv()`); скрипты вне Next подгружают `.env` через `loadLocalEnvFile()` — заданные в shell значения важнее `.env`.
+В серверном коде база — через `import { db } from "@/shared/db"`; в скриптах `@/shared/db` не импортировать — клиент помечен `server-only`.
+Neon Auth — через `@/shared/neon-auth/index.server` (сервер) и `@/shared/neon-auth` (клиентские компоненты). Пользователь в коде — только `getCurrentUser()` / `requireUser()` из `@/entities/session`. У ветки `dev` свои пользователи Neon Auth, у production — свои.
 Запросы сущностей к БД импортируются только из `@/entities/<slice>/index.server`; `@/entities/<slice>` (`index.ts`) должен оставаться безопасным для клиентских компонентов.
 
 Установку postinstall-скриптов зависимостей pnpm разрешает явно, через `allowBuilds` в `pnpm-workspace.yaml`.

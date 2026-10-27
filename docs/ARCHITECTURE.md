@@ -46,8 +46,12 @@ sub-tracker/
 │   ├── app/                    # слой app + роутинг Next.js
 │   │   ├── layout.tsx          # корневой лейаут, шрифты, globals.css
 │   │   ├── globals.css         # Tailwind + дизайн-токены (@theme)
+│   │   ├── api/auth/[...path]/route.ts  # обработчик Neon Auth (вход через Google, сессия)
 │   │   ├── (public)/
-│   │   │   └── page.tsx        # стартовая страница с кнопкой «Войти»
+│   │   │   ├── page.tsx        # стартовая страница: «Войти» / «Зарегистрироваться»
+│   │   │   ├── sign-in/page.tsx
+│   │   │   ├── sign-up/page.tsx
+│   │   │   └── verify-email/page.tsx
 │   │   └── (cabinet)/
 │   │       ├── layout.tsx      # проверка сессии → редирект гостя; шапка + навигация
 │   │       ├── dashboard/page.tsx
@@ -55,8 +59,12 @@ sub-tracker/
 │   │       ├── subscriptions/new/page.tsx
 │   │       ├── subscriptions/[id]/edit/page.tsx
 │   │       └── profile/page.tsx
+│   ├── proxy.ts                # быстрый редирект гостя из кабинета на /sign-in (Neon Auth)
 │   ├── views/
 │   │   ├── landing/
+│   │   ├── sign-in/
+│   │   ├── sign-up/
+│   │   ├── verify-email/
 │   │   ├── dashboard/
 │   │   ├── subscriptions/
 │   │   ├── subscription-create/
@@ -71,24 +79,24 @@ sub-tracker/
 │   │   ├── spending-by-category/
 │   │   └── upcoming-renewals/
 │   ├── features/
-│   │   ├── auth/                    # login (демо) / logout
+│   │   ├── auth/                    # регистрация, вход (email + пароль, Google), подтверждение email, выход
 │   │   ├── create-subscription/
 │   │   ├── edit-subscription/
 │   │   ├── delete-subscription/
 │   │   └── change-display-currency/ # выбор основной валюты в профиле
 │   ├── entities/
-│   │   ├── session/                 # getCurrentUser(), работа с cookie
+│   │   ├── session/                 # getCurrentUser() / requireUser() по сессии Neon Auth
 │   │   ├── user/
 │   │   ├── subscription/            # типы, категории, расчёт дат и стоимости, запросы
 │   │   └── exchange-rate/           # курсы ЦБ, пересчёт сумм между валютами
 │   └── shared/
 │       ├── ui/                      # Button, Input, Card, Modal, ...
 │       ├── lib/                     # date, money, cn, ...
-│       ├── config/                  # routes, demo-user, session-cookie; env.ts — только сервер/скрипты, не реэкспортируется из index
+│       ├── config/                  # routes, валюты, локаль; env.ts — только сервер/скрипты, не реэкспортируется из index
+│       ├── neon-auth/               # экземпляры Neon Auth: index.server.ts (server-only), index.ts (клиент)
 │       └── db/                      # клиент БД (server-only) + Drizzle-схема
 │           ├── client.ts            # pooled-подключение для приложения
-│           ├── schema/              # users.ts, subscriptions.ts, index.ts
-│           └── seed.ts              # сид демо-данных (запуск через tsx)
+│           └── schema/              # users.ts, subscriptions.ts, exchange-rates.ts, currency.ts, index.ts
 ├── .env.example
 ├── drizzle.config.ts
 └── vitest.config.mts
@@ -100,9 +108,9 @@ sub-tracker/
 
 | Поле | Тип | Ограничения |
 |---|---|---|
-| `id` | `uuid` | PK, `default gen_random_uuid()` |
-| `email` | `text` | `NOT NULL`, `UNIQUE` |
-| `name` | `text` | `NOT NULL` |
+| `id` | `uuid` | PK — совпадает с `neon_auth.user.id`; строка создаётся при первом входе |
+| `email` | `text` | `NOT NULL`, `UNIQUE` — копия из Neon Auth, обновляется при входе |
+| `name` | `text` | `NOT NULL` — копия из Neon Auth |
 | `display_currency` | enum `currency` | `NOT NULL`, `default 'RUB'` — основная валюта: в неё пересчитываются итоги |
 | `created_at` | `timestamptz` | `NOT NULL`, `default now()` |
 
@@ -155,8 +163,9 @@ sub-tracker/
 3. **Категории и периоды — Postgres enum + `as const` массив в коде** (единый источник для формы, валидации и графиков). Массивы лежат в `shared/config/subscription-enums.ts` (файл без зависимостей): их импортирует схема Drizzle (относительным путём) и клиентский код (через `@/shared/config`). Добавление категории = миграция.
 4. **Чтение данных — в Server Components** напрямую через функции из `entities/*/api`. **Мутации — Server Actions** в `features/*/api` с серверной валидацией и `revalidatePath`. Отдельные REST-эндпоинты не нужны.
 5. **Каждый запрос фильтруется по `user_id` текущего пользователя** — пользователь не может прочитать/изменить чужую подписку, даже зная `id`.
-6. **Моковая авторизация изолирована в `entities/session`.** Вход: server action ставит httpOnly-cookie с id демо-пользователя. Весь остальной код получает пользователя только через `getCurrentUser()` / `requireUser()`. Замена на реальную авторизацию потом затронет только этот слайс и `features/auth`.
-7. **Защита кабинета** — проверка в `src/app/(cabinet)/layout.tsx` (+ проверка пользователя в каждом server action). `proxy.ts` (бывший `middleware.ts` в Next 16) — опционально, только для быстрого редиректа.
+6. **Авторизация — Neon Auth (Managed Better Auth).** Пользователи, сессии и коды подтверждения хранятся в схеме `neon_auth` той же ветки Neon (у `dev` и production — разные пользователи). Приложение общается с ним через `@neondatabase/auth`: экземпляр — в `shared/neon-auth`, обработчик — `app/api/auth/[...path]`. Остальной код получает пользователя только через `getCurrentUser()` / `requireUser()` из `entities/session`: они читают сессию Neon Auth, считают гостем пользователя с неподтверждённым email и синхронизируют строку в `users` (id из Neon Auth, имя, email). Наша таблица `users` нужна для основной валюты и внешнего ключа подписок; FK на `neon_auth.user` нет — эту схему ведёт Neon.
+   Вход: email + пароль (server actions в `features/auth`) и Google (клиентский `authClient.signIn.social`, редирект через наш обработчик). Подтверждение email — кодом из письма: он работает и с общим отправителем Neon (ссылки требуют своего SMTP). Email, ожидающий подтверждения, хранится в httpOnly-cookie, а не в URL. Google работает на общих ключах Neon и в production (личный проект): на экране согласия Google — название Neon; свои ключи можно добавить позже в Neon → Settings → Auth без изменений кода. Коды ошибок Neon Auth приходят в стиле Supabase (`invalid_credentials`) или Better Auth (`INVALID_EMAIL_OR_PASSWORD`) — сопоставление с сообщениями учитывает оба.
+7. **Защита кабинета** — проверка в `src/app/(cabinet)/layout.tsx` и каждой странице (+ проверка пользователя в каждом server action). `src/proxy.ts` (бывший `middleware.ts` в Next 16, `auth.middleware()`) — быстрый редирект гостя на `/sign-in` и обновление сессии, не замена проверкам.
 8. **Переменные окружения** читаются и валидируются в одном месте — `shared/config/env.ts`.
 9. **Тесты** — Vitest, файлы `*.test.ts` рядом с тестируемым кодом. Основной фокус — `lib`-сегменты и схемы валидации.
 10. **ORM — Drizzle.** Схема описана на TypeScript в `shared/db/schema` (это инфраструктура, а не бизнес-логика, поэтому она в `shared`, а не в `entities` — иначе FK между `subscriptions` и `users` потребовал бы кросс-импорта сущностей). Миграции генерируются `drizzle-kit generate` в `drizzle/` и применяются `drizzle-kit migrate`; `drizzle-kit push` не используется. Сущности (`entities/*/api`) работают с БД через клиент из `shared/db` и отдают наружу доменные типы.
@@ -189,8 +198,8 @@ sub-tracker/
 | `postgres` (postgres.js) | драйвер PostgreSQL | 4 |
 | `zod` | валидация env и форм | 4 |
 | `server-only` | защита серверного кода от попадания в клиент | 4 |
-| `tsx` | запуск TS-скриптов (сид) | 4 |
 | `recharts` | графики на дашборде | 8 |
+| `@neondatabase/auth` | Neon Auth: сессия, вход, регистрация, обработчик и proxy для Next.js (beta) | 11 |
 
 Внешние сервисы: курсы ЦБ РФ — cbr-xml-daily.ru (HTTP-запрос без пакета, этап 10).
 

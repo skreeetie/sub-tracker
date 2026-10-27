@@ -1,47 +1,35 @@
 import "server-only";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { cache } from "react";
-import { z } from "zod";
-import { getUserById, type User } from "@/entities/user/@x/session";
-import { routes, sessionCookie } from "@/shared/config";
+import { syncUserFromAuth, type User } from "@/entities/user/@x/session";
+import { auth } from "@/shared/neon-auth/index.server";
+import { routes } from "@/shared/config";
 
-// Моковая сессия: в cookie лежит id пользователя. Реальная авторизация вне рамок MVP —
-// при её появлении меняется только этот файл и features/auth.
+// Сессия — Neon Auth. Остальной код получает пользователя только через getCurrentUser() / requireUser().
 
-const userIdSchema = z.uuid();
-
-/** Текущий пользователь или null. Кэшируется на время одного запроса. */
+/** Текущий пользователь или null (гость или email не подтверждён). Кэшируется на время одного запроса. */
 export const getCurrentUser = cache(async (): Promise<User | null> => {
-  const cookieStore = await cookies();
-  const userId = cookieStore.get(sessionCookie.name)?.value;
-  if (!userId || !userIdSchema.safeParse(userId).success) {
+  // Сессия зависит от cookie запроса: помечаем рендер динамическим до вызова SDK,
+  // иначе при сборке Neon Auth логирует перехваченную ошибку пререндера.
+  await connection();
+  const { data } = await auth.getSession();
+  const authUser = data?.user;
+  if (!authUser || !authUser.emailVerified) {
     return null;
   }
-  return getUserById(userId);
+  return syncUserFromAuth({
+    id: authUser.id,
+    email: authUser.email,
+    name: authUser.name || authUser.email,
+  });
 });
 
-/** Текущий пользователь; гостя перенаправляет на стартовую страницу. */
+/** Текущий пользователь; гостя перенаправляет на страницу входа. */
 export async function requireUser(): Promise<User> {
   const user = await getCurrentUser();
   if (!user) {
-    redirect(routes.home);
+    redirect(routes.signIn);
   }
   return user;
-}
-
-export async function createSession(userId: string) {
-  const cookieStore = await cookies();
-  cookieStore.set(sessionCookie.name, userId, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: sessionCookie.maxAgeSeconds,
-  });
-}
-
-export async function deleteSession() {
-  const cookieStore = await cookies();
-  cookieStore.delete(sessionCookie.name);
 }

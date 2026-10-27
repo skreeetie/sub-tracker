@@ -1,1 +1,1 @@
-export { createSession, deleteSession, getCurrentUser, requireUser } from "./api/session";
+export { getCurrentUser, requireUser } from "./api/session";

@@ -2,7 +2,7 @@
 
 Трекер подписок: учёт сервисов, траты по месяцам и категориям, напоминания о продлении.
 
-Стек: Next.js 16, React 19, TypeScript, Tailwind CSS v4, PostgreSQL + Drizzle, Vitest. Архитектура — Feature-Sliced Design.
+Стек: Next.js 16, React 19, TypeScript, Tailwind CSS v4, PostgreSQL (Neon) + Drizzle, Neon Auth, Vitest. Архитектура — Feature-Sliced Design.
 
 ## Запуск
 

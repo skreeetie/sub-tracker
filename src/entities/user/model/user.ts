@@ -7,3 +7,6 @@ export interface User {
   /** Основная валюта: в неё пересчитываются итоги дашборда. */
   displayCurrency: Currency;
 }
+
+/** Данные пользователя из сессии Neon Auth, которые копируются в users. */
+export type AuthUserProfile = Pick<User, "id" | "email" | "name">;

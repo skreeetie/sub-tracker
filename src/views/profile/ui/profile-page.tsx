@@ -1,6 +1,5 @@
 import { requireUser } from "@/entities/session";
 import { DisplayCurrencyForm } from "@/features/change-display-currency";
-import { Badge } from "@/shared/ui/badge";
 import { Card } from "@/shared/ui/card";
 import { PageHeader } from "@/shared/ui/page-header";
 
@@ -15,7 +14,7 @@ export async function ProfilePage() {
     <>
       <PageHeader title="Профиль" />
       <div className="grid max-w-xl gap-4">
-        <Card title="Аккаунт" actions={<Badge tone="accent">Тестовый</Badge>}>
+        <Card title="Аккаунт">
           <dl className="divide-y divide-line">
             {fields.map((field) => (
               <div key={field.label} className="grid gap-1 py-3 first:pt-0 last:pb-0 sm:grid-cols-[8rem_1fr]">

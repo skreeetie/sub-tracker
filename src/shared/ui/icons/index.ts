@@ -3,6 +3,7 @@ export {
   IconCalendar,
   IconChart,
   IconChevronDown,
+  IconGoogle,
   IconList,
   IconLogout,
   IconPencil,

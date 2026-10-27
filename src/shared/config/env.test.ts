@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getAppEnv, getMigrationEnv } from "./env";
+import { getAppEnv, getAuthEnv, getMigrationEnv } from "./env";
 
 const pooledUrl = "postgresql://user:s3cret@ep-test-pooler.eu-central-1.aws.neon.tech/db?sslmode=require";
 const directUrl = "postgresql://user:s3cret@ep-test.eu-central-1.aws.neon.tech/db?sslmode=require";
@@ -43,5 +43,27 @@ describe("getMigrationEnv", () => {
 
   it("падает, если DATABASE_URL_UNPOOLED не задан", () => {
     expect(() => getMigrationEnv({ DATABASE_URL: pooledUrl })).toThrow(/DATABASE_URL_UNPOOLED/);
+  });
+});
+
+describe("getAuthEnv", () => {
+  const baseUrl = "https://ep-test.neonauth.eu-central-1.aws.neon.tech/neondb/auth";
+  const secret = "x".repeat(32);
+
+  it("возвращает адрес и секрет, если они корректны", () => {
+    expect(getAuthEnv({ NEON_AUTH_BASE_URL: baseUrl, NEON_AUTH_COOKIE_SECRET: secret })).toEqual({
+      NEON_AUTH_BASE_URL: baseUrl,
+      NEON_AUTH_COOKIE_SECRET: secret,
+    });
+  });
+
+  it("требует секрет не короче 32 символов", () => {
+    expect(() => getAuthEnv({ NEON_AUTH_BASE_URL: baseUrl, NEON_AUTH_COOKIE_SECRET: "short" })).toThrow(
+      /NEON_AUTH_COOKIE_SECRET/,
+    );
+  });
+
+  it("падает без адреса сервиса", () => {
+    expect(() => getAuthEnv({ NEON_AUTH_COOKIE_SECRET: secret })).toThrow(/NEON_AUTH_BASE_URL/);
   });
 });

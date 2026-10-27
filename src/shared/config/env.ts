@@ -14,6 +14,12 @@ const migrationEnvSchema = z.object({
   DATABASE_URL_UNPOOLED: postgresUrl,
 });
 
+const authEnvSchema = z.object({
+  NEON_AUTH_BASE_URL: z.url({ protocol: /^https?$/ }),
+  // Секрет подписи cookie сессии; Neon Auth требует не меньше 32 символов.
+  NEON_AUTH_COOKIE_SECRET: z.string().min(32),
+});
+
 type EnvSource = Record<string, string | undefined>;
 
 function parseEnv<TSchema extends z.ZodType>(schema: TSchema, source: EnvSource): z.output<TSchema> {
@@ -31,13 +37,18 @@ export function getAppEnv(source: EnvSource = process.env) {
   return parseEnv(appEnvSchema, source);
 }
 
-/** Переменные для миграций и сида: прямое подключение к базе. */
+/** Переменные Neon Auth: адрес сервиса авторизации ветки и секрет cookie. */
+export function getAuthEnv(source: EnvSource = process.env) {
+  return parseEnv(authEnvSchema, source);
+}
+
+/** Переменные для миграций: прямое подключение к базе. */
 export function getMigrationEnv(source: EnvSource = process.env) {
   return parseEnv(migrationEnvSchema, source);
 }
 
 /**
- * Подгружает локальный .env для скриптов вне Next (drizzle-kit, сид).
+ * Подгружает локальный .env для скриптов вне Next (drizzle-kit).
  * Уже заданные переменные не перезаписываются, поэтому production-строку можно передать явно.
  */
 export function loadLocalEnvFile(path = ".env") {
