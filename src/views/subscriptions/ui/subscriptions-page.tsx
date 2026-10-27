@@ -1,10 +1,13 @@
+import { requireUser } from "@/entities/session";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { IconList, IconPlus } from "@/shared/ui/icons";
 import { PageHeader } from "@/shared/ui/page-header";
 
-export function SubscriptionsPage() {
+export async function SubscriptionsPage() {
+  await requireUser();
+
   return (
     <>
       <PageHeader

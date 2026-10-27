@@ -1,3 +1,4 @@
+import { requireUser } from "@/entities/session";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { EmptyState } from "@/shared/ui/empty-state";
@@ -10,7 +11,9 @@ const summary = [
   { label: "Активных подписок", value: "0" },
 ] as const;
 
-export function DashboardPage() {
+export async function DashboardPage() {
+  await requireUser();
+
   return (
     <>
       <PageHeader title="Дашборд" description="Сводка по всем вашим подпискам" />

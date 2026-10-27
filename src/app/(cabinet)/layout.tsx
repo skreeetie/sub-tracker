@@ -1,24 +1,23 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { requireUser } from "@/entities/session";
+import { LogoutButton } from "@/features/auth";
 import { routes } from "@/shared/config";
-import { buttonClassName } from "@/shared/ui/button";
-import { IconLogout } from "@/shared/ui/icons";
 import { AppHeader } from "@/widgets/app-header";
 import { AppBottomNav, AppSidebar } from "@/widgets/app-sidebar";
 
-export default function CabinetLayout({ children }: { children: ReactNode }) {
+// Лейаут не перерисовывается при переходах между страницами, поэтому
+// доступ проверяет ещё и каждая страница кабинета (requireUser в views).
+export default async function CabinetLayout({ children }: { children: ReactNode }) {
+  const user = await requireUser();
+
   return (
     <div className="flex flex-1 flex-col">
       <AppHeader
         homeHref={routes.dashboard}
         actions={
-          // Заглушка до этапа 5: имя из сессии и выход через features/auth.
           <>
-            <span className="hidden text-sm text-muted sm:inline">Демо-пользователь</span>
-            <Link href={routes.home} className={buttonClassName({ variant: "ghost", size: "sm" })}>
-              <IconLogout className="size-4" />
-              Выйти
-            </Link>
+            <span className="hidden text-sm text-muted sm:inline">{user.name}</span>
+            <LogoutButton />
           </>
         }
       />

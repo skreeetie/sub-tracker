@@ -1,9 +1,15 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/entities/session";
+import { LoginButton } from "@/features/auth";
 import { routes } from "@/shared/config";
-import { buttonClassName } from "@/shared/ui/button";
 import { UpcomingPreview } from "./upcoming-preview";
 
-export function LandingPage() {
+export async function LandingPage() {
+  // Уже вошедшему пользователю стартовая не нужна — сразу в кабинет.
+  if (await getCurrentUser()) {
+    redirect(routes.dashboard);
+  }
+
   return (
     <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-12 px-4 py-12 md:px-6 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:py-20">
       <div className="max-w-xl">
@@ -15,9 +21,7 @@ export function LandingPage() {
           и за неделю напомнит о продлении.
         </p>
         <div className="mt-8 flex flex-col items-start gap-3">
-          <Link href={routes.dashboard} className={buttonClassName({ className: "h-12 px-6 text-base" })}>
-            Войти в демо-аккаунт
-          </Link>
+          <LoginButton className="h-12 px-6 text-base">Войти в демо-аккаунт</LoginButton>
           <p className="text-sm text-muted">Без регистрации: откроется тестовый аккаунт.</p>
         </div>
       </div>

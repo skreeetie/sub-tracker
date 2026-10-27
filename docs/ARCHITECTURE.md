@@ -82,7 +82,7 @@ sub-tracker/
 │   └── shared/
 │       ├── ui/                      # Button, Input, Card, Modal, ...
 │       ├── lib/                     # date, money, cn, ...
-│       ├── config/                  # routes, demo-user; env.ts — только сервер/скрипты, не реэкспортируется из index
+│       ├── config/                  # routes, demo-user, session-cookie; env.ts — только сервер/скрипты, не реэкспортируется из index
 │       └── db/                      # клиент БД (server-only) + Drizzle-схема
 │           ├── client.ts            # pooled-подключение для приложения
 │           ├── schema/              # users.ts, subscriptions.ts, enums.ts, index.ts
