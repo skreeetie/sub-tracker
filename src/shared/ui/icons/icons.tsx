@@ -97,3 +97,20 @@ export function IconGoogle(props: IconProps) {
     </svg>
   );
 }
+
+export function IconAlert(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M10.3 3.9 2.4 17.6A2 2 0 0 0 4.1 20.6h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0ZM12 9v4M12 17h.01" />
+    </Icon>
+  );
+}
+
+export function IconCompass(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" />
+    </Icon>
+  );
+}

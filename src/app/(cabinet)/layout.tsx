@@ -16,7 +16,9 @@ export default async function CabinetLayout({ children }: { children: ReactNode 
         homeHref={routes.dashboard}
         actions={
           <>
-            <span className="hidden text-sm text-muted sm:inline">{user.name}</span>
+            <span title={user.name} className="max-w-32 truncate text-sm text-muted sm:max-w-60">
+              {user.name}
+            </span>
             <LogoutButton />
           </>
         }

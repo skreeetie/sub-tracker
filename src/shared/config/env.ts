@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { z } from "zod";
 
 // Единственное место, где читаются и проверяются переменные окружения.
@@ -45,14 +44,4 @@ export function getAuthEnv(source: EnvSource = process.env) {
 /** Переменные для миграций: прямое подключение к базе. */
 export function getMigrationEnv(source: EnvSource = process.env) {
   return parseEnv(migrationEnvSchema, source);
-}
-
-/**
- * Подгружает локальный .env для скриптов вне Next (drizzle-kit).
- * Уже заданные переменные не перезаписываются, поэтому production-строку можно передать явно.
- */
-export function loadLocalEnvFile(path = ".env") {
-  if (existsSync(path)) {
-    process.loadEnvFile(path);
-  }
 }

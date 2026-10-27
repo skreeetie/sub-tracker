@@ -41,10 +41,14 @@
 sub-tracker/
 ├── docs/                       # AGENTS, SPEC, PLAN, ARCHITECTURE
 ├── drizzle/                    # SQL-миграции, сгенерированные drizzle-kit (коммитятся)
+├── scripts/
+│   └── migrate-prod.mjs        # pnpm db:migrate:prod — миграции на production со скрытым вводом строки
 ├── public/
 ├── src/
 │   ├── app/                    # слой app + роутинг Next.js
 │   │   ├── layout.tsx          # корневой лейаут, шрифты, globals.css
+│   │   ├── not-found.tsx       # 404 для несуществующих адресов
+│   │   ├── error.tsx           # ошибка в лейаутах групп; global-error.tsx — в корневом лейауте
 │   │   ├── globals.css         # Tailwind + дизайн-токены (@theme)
 │   │   ├── api/auth/[...path]/route.ts  # обработчик Neon Auth (вход через Google, сессия)
 │   │   ├── (public)/
@@ -54,6 +58,8 @@ sub-tracker/
 │   │   │   └── verify-email/page.tsx
 │   │   └── (cabinet)/
 │   │       ├── layout.tsx      # проверка сессии → редирект гостя; шапка + навигация
+│   │       ├── not-found.tsx   # 404 внутри кабинета (чужая/удалённая подписка)
+│   │       ├── error.tsx       # ошибка страницы кабинета: меню остаётся, кнопка «Попробовать снова»
 │   │       ├── dashboard/page.tsx
 │   │       ├── subscriptions/page.tsx
 │   │       ├── subscriptions/new/page.tsx
@@ -65,6 +71,8 @@ sub-tracker/
 │   │   ├── sign-in/
 │   │   ├── sign-up/
 │   │   ├── verify-email/
+│   │   ├── not-found/
+│   │   ├── error/
 │   │   ├── dashboard/
 │   │   ├── subscriptions/
 │   │   ├── subscription-create/

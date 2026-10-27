@@ -1,7 +1,13 @@
+import { existsSync } from "node:fs";
 import { defineConfig } from "drizzle-kit";
-import { getMigrationEnv, loadLocalEnvFile } from "./src/shared/config/env";
+import { getMigrationEnv } from "./src/shared/config/env";
 
-loadLocalEnvFile();
+// drizzle-kit работает вне Next, поэтому .env подгружаем сами. Уже заданные в shell переменные
+// не перезаписываются — так production-строку можно передать явно.
+// (Не в shared/config/env.ts: доступ к файловой системе там заставил бы Vercel трассировать весь проект.)
+if (existsSync(".env")) {
+  process.loadEnvFile(".env");
+}
 
 export default defineConfig({
   dialect: "postgresql",

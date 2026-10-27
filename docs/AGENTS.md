@@ -36,7 +36,8 @@
 | `pnpm test` | Unit-тесты (Vitest, один прогон) |
 | `pnpm test:watch` | Unit-тесты в watch-режиме |
 | `pnpm db:generate` | Сгенерировать миграцию по изменениям схемы |
-| `pnpm db:migrate` | Применить миграции к базе (по `DATABASE_URL_UNPOOLED`) |
+| `pnpm db:migrate` | Применить миграции к базе из `.env` (ветка `dev`, по `DATABASE_URL_UNPOOLED`) |
+| `pnpm db:migrate:prod` | Применить миграции к production: спрашивает строку подключения скрытым вводом, показывает хост и число новых миграций, просит подтверждение (запускает пользователь) |
 | `pnpm db:studio` | Drizzle Studio — веб-просмотр базы |
 
 Тесты — файлы `src/**/*.test.ts` рядом с тестируемым кодом, конфиг — `vitest.config.mts` (алиас `@/*` → `src/*`).
@@ -50,7 +51,7 @@
 Локальный `.env` указывает на ветку `dev` в Neon, production — на основную ветку.
 
 Никогда не выводи значения этих переменных в лог, чат или код.
-Переменные читаются только через `@/shared/config/env` (`getAppEnv()` / `getAuthEnv()` / `getMigrationEnv()`); скрипты вне Next подгружают `.env` через `loadLocalEnvFile()` — заданные в shell значения важнее `.env`.
+Переменные читаются только через `@/shared/config/env` (`getAppEnv()` / `getAuthEnv()` / `getMigrationEnv()`); `drizzle.config.ts` подгружает `.env` сам (`process.loadEnvFile`) — заданные в shell значения важнее `.env`. В `env.ts` не должно быть доступа к файловой системе: его импортирует приложение, и Vercel начал бы трассировать весь проект.
 В серверном коде база — через `import { db } from "@/shared/db"`; в скриптах `@/shared/db` не импортировать — клиент помечен `server-only`.
 Neon Auth — через `@/shared/neon-auth/index.server` (сервер) и `@/shared/neon-auth` (клиентские компоненты). Пользователь в коде — только `getCurrentUser()` / `requireUser()` из `@/entities/session`. У ветки `dev` свои пользователи Neon Auth, у production — свои.
 Запросы сущностей к БД импортируются только из `@/entities/<slice>/index.server`; `@/entities/<slice>` (`index.ts`) должен оставаться безопасным для клиентских компонентов.
@@ -64,8 +65,8 @@ Neon Auth — через `@/shared/neon-auth/index.server` (сервер) и `@/
 - Хостинг — Vercel: https://sub-tracker-iota.vercel.app
 - **Пуш в `main` сразу уходит в production.** Пушить в `main` только то, что прошло `pnpm lint`, `pnpm lint:fsd`, `pnpm test` и `pnpm build`.
 - Остальные ветки и PR получают preview-деплои.
-- Переменные окружения production (`DATABASE_URL`, `DATABASE_URL_UNPOOLED`) задаются в Vercel, не в репозитории.
-- Миграции к production-базе применяются вручную и только после согласования с пользователем — в сборку Vercel они не встроены.
+- Переменные окружения production (`DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET`) задаются в Vercel, не в репозитории.
+- Миграции к production-базе применяются вручную и только после согласования с пользователем — в сборку Vercel они не встроены. Пользователь запускает `pnpm db:migrate:prod`.
 - **Если этап добавил миграцию, её применяют к production до пуша в `main`** — иначе новый код упадёт на старой схеме.
 
 ## Правила работы

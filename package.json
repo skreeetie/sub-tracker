@@ -13,6 +13,7 @@
     "lint:fsd": "steiger ./src",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:prod": "node scripts/migrate-prod.mjs",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
