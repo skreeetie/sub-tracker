@@ -3,7 +3,7 @@ import type { Subscription } from "../model/subscription";
 import { getUpcomingRenewals } from "./upcoming-renewals";
 
 function subscription(name: string, startDate: string, billingPeriod: Subscription["billingPeriod"] = "monthly") {
-  return { id: name, name, priceMinor: 10000, billingPeriod, category: "other", startDate } satisfies Subscription;
+  return { id: name, name, priceMinor: 10000, currency: "RUB", billingPeriod, category: "other", startDate } satisfies Subscription;
 }
 
 const today = "2026-10-27";

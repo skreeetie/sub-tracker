@@ -25,7 +25,7 @@ export function SubscriptionItem({ subscription, nextBillingDate, actions }: Sub
           </p>
         </div>
         <p className="text-sm text-ink sm:text-right">
-          <span className="font-semibold tabular-nums">{formatMoney(subscription.priceMinor)}</span>{" "}
+          <span className="font-semibold tabular-nums">{formatMoney(subscription.priceMinor, subscription.currency)}</span>{" "}
           <span className="text-muted">{billingPeriodPriceSuffix[subscription.billingPeriod]}</span>
         </p>
       </div>

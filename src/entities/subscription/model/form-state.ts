@@ -5,6 +5,7 @@ import type { Subscription } from "./subscription";
 export const subscriptionFormFields: readonly SubscriptionFormField[] = [
   "name",
   "price",
+  "currency",
   "billingPeriod",
   "category",
   "startDate",
@@ -46,6 +47,7 @@ export function toSubscriptionFormValues(subscription: Subscription): Subscripti
   return {
     name: subscription.name,
     price: formatMoneyInput(subscription.priceMinor),
+    currency: subscription.currency,
     billingPeriod: subscription.billingPeriod,
     category: subscription.category,
     startDate: subscription.startDate,

@@ -1,6 +1,6 @@
-import { billingPeriods, subscriptionCategories } from "@/shared/config";
+import { billingPeriods, currencies, subscriptionCategories } from "@/shared/config";
 
-export { billingPeriods, subscriptionCategories };
+export { billingPeriods, currencies, subscriptionCategories };
 
 export type BillingPeriod = (typeof billingPeriods)[number];
 export type SubscriptionCategory = (typeof subscriptionCategories)[number];
@@ -27,5 +27,5 @@ export const categoryLabels: Record<SubscriptionCategory, string> = {
 };
 
 export const subscriptionNameMaxLength = 100;
-/** 1 000 000 ₽ в копейках. */
+/** 1 000 000 в минимальных единицах любой валюты. */
 export const subscriptionPriceMaxMinor = 100_000_000;

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { parseIsoDate, parseMoneyToMinor } from "@/shared/lib";
 import {
   billingPeriods,
+  currencies,
   subscriptionCategories,
   subscriptionNameMaxLength,
   subscriptionPriceMaxMinor,
@@ -34,8 +35,9 @@ export const subscriptionFormSchema = z.object({
       z
         .number()
         .positive({ error: "Стоимость должна быть больше нуля" })
-        .max(subscriptionPriceMaxMinor, { error: "Стоимость не больше 1 000 000 ₽" }),
+        .max(subscriptionPriceMaxMinor, { error: "Стоимость не больше 1 000 000" }),
     ),
+  currency: z.enum(currencies, { error: "Выберите валюту" }),
   billingPeriod: z.enum(billingPeriods, { error: "Выберите период оплаты" }),
   category: z.enum(subscriptionCategories, { error: "Выберите категорию" }),
   startDate: z

@@ -1,15 +1,18 @@
 import { categoryLabels, getSpendingByCategory, type Subscription } from "@/entities/subscription";
+import type { Currency } from "@/shared/config";
 import { formatMoney } from "@/shared/lib";
 import { Card } from "@/shared/ui/card";
 
 interface SpendingByCategoryProps {
+  /** Подписки с ценами в валюте currency. */
   subscriptions: Subscription[];
+  currency: Currency;
 }
 
 const percentFormat = new Intl.NumberFormat("ru-RU", { style: "percent", maximumFractionDigits: 0 });
 
 /** Распределение месячной нагрузки по категориям: полосы + суммы. */
-export function SpendingByCategory({ subscriptions }: SpendingByCategoryProps) {
+export function SpendingByCategory({ subscriptions, currency }: SpendingByCategoryProps) {
   const items = getSpendingByCategory(subscriptions);
   const totalMinor = items.reduce((sum, item) => sum + item.monthlyMinor, 0);
   const maxMinor = items[0]?.monthlyMinor ?? 0;
@@ -24,7 +27,7 @@ export function SpendingByCategory({ subscriptions }: SpendingByCategoryProps) {
               <div className="flex items-baseline justify-between gap-4 text-sm">
                 <span className="font-medium text-ink">{categoryLabels[item.category]}</span>
                 <span className="text-ink tabular-nums">
-                  <span className="font-semibold">{formatMoney(item.monthlyMinor)}</span>
+                  <span className="font-semibold">{formatMoney(item.monthlyMinor, currency)}</span>
                   <span className="ml-2 inline-block w-10 text-right text-muted">{percentFormat.format(share)}</span>
                 </span>
               </div>

@@ -13,3 +13,6 @@ export const subscriptionCategories = [
   "education",
   "other",
 ] as const;
+
+/** Валюты подписок и основной валюты пользователя (ISO 4217). У всех — две цифры после запятой. */
+export const currencies = ["RUB", "USD", "EUR", "GBP", "CNY", "KZT", "TRY"] as const;

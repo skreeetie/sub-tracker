@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { useActionState, useState, type FormEvent } from "react";
+import { currencyLabels } from "@/shared/config";
 import { buttonClassName } from "@/shared/ui/button";
 import { FormField } from "@/shared/ui/form-field";
 import { Input } from "@/shared/ui/input";
 import { Select } from "@/shared/ui/select";
 import { SubmitButton } from "@/shared/ui/submit-button";
-import { billingPeriodLabels, billingPeriods, categoryLabels, subscriptionCategories } from "../model/constants";
+import {
+  billingPeriodLabels,
+  billingPeriods,
+  categoryLabels,
+  currencies,
+  subscriptionCategories,
+} from "../model/constants";
 import { validateSubscriptionForm, type SubscriptionFormErrors, type SubscriptionFormField } from "../model/form-schema";
 import {
   initialSubscriptionFormState,
@@ -85,9 +92,24 @@ export function SubscriptionForm({ action, defaultValues, submitLabel, cancelHre
       </FormField>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="subscription-price" label="Стоимость, ₽" error={errors.price}>
+        <FormField id="subscription-price" label="Стоимость" error={errors.price}>
           {(control) => (
             <Input {...control} name="price" defaultValue={values.price} inputMode="decimal" placeholder="399" />
+          )}
+        </FormField>
+
+        <FormField id="subscription-currency" label="Валюта" error={errors.currency}>
+          {(control) => (
+            <Select {...control} name="currency" defaultValue={values.currency ?? ""}>
+              <option value="" disabled>
+                Выберите валюту
+              </option>
+              {currencies.map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency} — {currencyLabels[currency]}
+                </option>
+              ))}
+            </Select>
           )}
         </FormField>
 

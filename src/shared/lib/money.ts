@@ -1,4 +1,4 @@
-import { appCurrency, appLocale } from "@/shared/config";
+import { appLocale, type Currency } from "@/shared/config";
 
 const moneyInputPattern = /^(\d+)(?:[.,](\d{1,2}))?$/;
 
@@ -24,22 +24,24 @@ export function formatMoneyInput(minor: number): string {
   return kopecks === 0 ? String(rubles) : `${rubles},${String(kopecks).padStart(2, "0")}`;
 }
 
-/** 39900 → "399 ₽", 39990 → "399,90 ₽" */
-export function formatMoney(minor: number, locale: string = appLocale, currency: string = appCurrency): string {
+/** (39900, "RUB") → "399 ₽", (999, "USD") → "9,99 $". Символ — короткий: ₸, ₺, ¥. */
+export function formatMoney(minor: number, currency: Currency, locale: string = appLocale): string {
   const hasKopecks = minor % 100 !== 0;
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
+    currencyDisplay: "narrowSymbol",
     minimumFractionDigits: hasKopecks ? 2 : 0,
     maximumFractionDigits: 2,
   }).format(minor / 100);
 }
 
 /** Для подписей осей: 123400 → "1,2 тыс. ₽", 50000 → "500 ₽". */
-export function formatMoneyCompact(minor: number, locale: string = appLocale, currency: string = appCurrency): string {
+export function formatMoneyCompact(minor: number, currency: Currency, locale: string = appLocale): string {
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
+    currencyDisplay: "narrowSymbol",
     notation: "compact",
     maximumFractionDigits: 1,
   }).format(minor / 100);

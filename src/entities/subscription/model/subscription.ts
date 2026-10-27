@@ -1,12 +1,14 @@
 import { z } from "zod";
+import type { Currency } from "@/shared/config";
 import type { IsoDate } from "@/shared/lib";
 import type { BillingPeriod, SubscriptionCategory } from "./constants";
 
 export interface Subscription {
   id: string;
   name: string;
-  /** Цена в копейках. */
+  /** Цена в минимальных единицах валюты подписки (копейки, центы). */
   priceMinor: number;
+  currency: Currency;
   billingPeriod: BillingPeriod;
   category: SubscriptionCategory;
   startDate: IsoDate;

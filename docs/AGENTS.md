@@ -14,6 +14,7 @@
 | ORM | Drizzle ORM + drizzle-kit (миграции) |
 | Валидация | Zod |
 | Графики | Recharts |
+| Курсы валют | ЦБ РФ через cbr-xml-daily.ru (JSON, без ключа) |
 | Тесты | Unit-тесты (Vitest) |
 | Линтер | ESLint 9 (`eslint-config-next`) |
 | Рантайм | Node.js 26 (через fnm) |

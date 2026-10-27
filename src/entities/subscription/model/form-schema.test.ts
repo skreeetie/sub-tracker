@@ -4,6 +4,7 @@ import { validateSubscriptionForm } from "./form-schema";
 const validValues = {
   name: "  Музыка  ",
   price: "199,90",
+  currency: "USD",
   billingPeriod: "monthly",
   category: "music",
   startDate: "2026-01-31",
@@ -16,6 +17,7 @@ describe("validateSubscriptionForm", () => {
       data: {
         name: "Музыка",
         priceMinor: 19990,
+        currency: "USD",
         billingPeriod: "monthly",
         category: "music",
         startDate: "2026-01-31",
@@ -24,12 +26,20 @@ describe("validateSubscriptionForm", () => {
   });
 
   it("собирает ошибки по всем пустым полям", () => {
-    const result = validateSubscriptionForm({ name: " ", price: "", billingPeriod: "", category: "", startDate: "" });
+    const result = validateSubscriptionForm({
+      name: " ",
+      price: "",
+      currency: "",
+      billingPeriod: "",
+      category: "",
+      startDate: "",
+    });
     expect(result).toEqual({
       success: false,
       errors: {
         name: "Укажите название сервиса",
         price: "Укажите стоимость",
+        currency: "Выберите валюту",
         billingPeriod: "Выберите период оплаты",
         category: "Выберите категорию",
         startDate: "Укажите дату начала",
@@ -42,7 +52,7 @@ describe("validateSubscriptionForm", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(Object.keys(result.errors).sort()).toEqual(
-        ["billingPeriod", "category", "name", "price", "startDate"].sort(),
+        ["billingPeriod", "category", "currency", "name", "price", "startDate"].sort(),
       );
     }
   });
@@ -53,7 +63,7 @@ describe("validateSubscriptionForm", () => {
     ["-5", "Введите сумму числом, например 399 или 399,90"],
     ["0", "Стоимость должна быть больше нуля"],
     ["0,00", "Стоимость должна быть больше нуля"],
-    ["1000000,01", "Стоимость не больше 1 000 000 ₽"],
+    ["1000000,01", "Стоимость не больше 1 000 000"],
   ])("цена %j → «%s»", (price, message) => {
     expect(validateSubscriptionForm({ ...validValues, price })).toEqual({
       success: false,
@@ -76,6 +86,13 @@ describe("validateSubscriptionForm", () => {
     expect(validateSubscriptionForm({ ...validValues, startDate })).toEqual({
       success: false,
       errors: { startDate: "Укажите корректную дату начала" },
+    });
+  });
+
+  it("отклоняет неизвестную валюту", () => {
+    expect(validateSubscriptionForm({ ...validValues, currency: "JPY" })).toEqual({
+      success: false,
+      errors: { currency: "Выберите валюту" },
     });
   });
 

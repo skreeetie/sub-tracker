@@ -9,6 +9,7 @@ const subscriptionColumns = {
   id: subscriptions.id,
   name: subscriptions.name,
   priceMinor: subscriptions.priceMinor,
+  currency: subscriptions.currency,
   billingPeriod: subscriptions.billingPeriod,
   category: subscriptions.category,
   startDate: subscriptions.startDate,

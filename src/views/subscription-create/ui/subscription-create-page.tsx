@@ -6,13 +6,13 @@ import { Card } from "@/shared/ui/card";
 import { PageHeader } from "@/shared/ui/page-header";
 
 export async function SubscriptionCreatePage() {
-  await requireUser();
+  const user = await requireUser();
 
   return (
     <>
-      <PageHeader title="Новая подписка" description="Цена и дата начала нужны, чтобы считать траты и даты списаний" />
+      <PageHeader title="Новая подписка" description="Цена, валюта и дата начала нужны, чтобы считать траты и даты списаний" />
       <Card className="max-w-2xl">
-        <CreateSubscriptionForm today={getTodayIsoDate(appTimeZone)} />
+        <CreateSubscriptionForm today={getTodayIsoDate(appTimeZone)} defaultCurrency={user.displayCurrency} />
       </Card>
     </>
   );

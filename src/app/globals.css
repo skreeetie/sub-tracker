@@ -80,3 +80,11 @@ body {
   background: var(--canvas);
   color: var(--ink);
 }
+
+/* Tailwind v4 не ставит кнопкам cursor: pointer — возвращаем для всех кликабельных кнопок. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}

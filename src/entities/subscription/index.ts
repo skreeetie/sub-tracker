@@ -15,6 +15,7 @@ export {
   billingPeriodPriceSuffix,
   billingPeriods,
   categoryLabels,
+  currencies,
   subscriptionCategories,
   type BillingPeriod,
   type SubscriptionCategory,

@@ -23,15 +23,26 @@ describe("parseMoneyToMinor", () => {
 
 describe("formatMoney", () => {
   it("без копеек — целое число", () => {
-    expect(normalizeSpaces(formatMoney(39900))).toBe("399 ₽");
+    expect(normalizeSpaces(formatMoney(39900, "RUB"))).toBe("399 ₽");
   });
 
   it("с копейками — два знака", () => {
-    expect(normalizeSpaces(formatMoney(39990))).toBe("399,90 ₽");
+    expect(normalizeSpaces(formatMoney(39990, "RUB"))).toBe("399,90 ₽");
   });
 
   it("разделяет тысячи", () => {
-    expect(normalizeSpaces(formatMoney(599000))).toBe("5 990 ₽");
+    expect(normalizeSpaces(formatMoney(599000, "RUB"))).toBe("5 990 ₽");
+  });
+
+  it.each([
+    ["USD", "9,99 $"],
+    ["EUR", "9,99 €"],
+    ["GBP", "9,99 £"],
+    ["CNY", "9,99 ¥"],
+    ["KZT", "9,99 ₸"],
+    ["TRY", "9,99 ₺"],
+  ] as const)("валюта %s → %j", (currency, expected) => {
+    expect(normalizeSpaces(formatMoney(999, currency))).toBe(expected);
   });
 });
 
@@ -57,6 +68,6 @@ describe("formatMoneyCompact", () => {
     [123400, "1,2 тыс. ₽"],
     [1250000, "12,5 тыс. ₽"],
   ])("%i копеек → %j", (minor, expected) => {
-    expect(normalizeSpaces(formatMoneyCompact(minor))).toBe(expected);
+    expect(normalizeSpaces(formatMoneyCompact(minor, "RUB"))).toBe(expected);
   });
 });

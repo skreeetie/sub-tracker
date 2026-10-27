@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createSession, deleteSession } from "@/entities/session";
-import { getUserByEmail } from "@/entities/user";
+import { getUserByEmail } from "@/entities/user/index.server";
 import { demoUser, routes } from "@/shared/config";
 
 /** Моковый вход: без ввода данных открывает сессию демо-пользователя. */

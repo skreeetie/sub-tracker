@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { check, date, index, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { billingPeriods, subscriptionCategories } from "../../config/subscription-enums";
+import { currencyEnum } from "./currency";
 import { users } from "./users";
 
 export const billingPeriodEnum = pgEnum("billing_period", billingPeriods);
@@ -14,8 +15,9 @@ export const subscriptions = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     name: text().notNull(),
-    /** Цена в копейках. */
+    /** Цена в минимальных единицах валюты подписки (копейки, центы). */
     priceMinor: integer().notNull(),
+    currency: currencyEnum().notNull().default("RUB"),
     billingPeriod: billingPeriodEnum().notNull(),
     category: subscriptionCategoryEnum().notNull(),
     /** Календарная дата без времени: "YYYY-MM-DD". */

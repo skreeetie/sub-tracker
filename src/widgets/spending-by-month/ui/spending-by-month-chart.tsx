@@ -1,6 +1,7 @@
 "use client";
 
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
+import type { Currency } from "@/shared/config";
 import { formatMoney, formatMoneyCompact } from "@/shared/lib";
 
 export interface MonthChartPoint {
@@ -14,11 +15,12 @@ export interface MonthChartPoint {
 
 interface SpendingByMonthChartProps {
   data: MonthChartPoint[];
+  currency: Currency;
 }
 
 const axisTick = { fill: "var(--muted)", fontSize: 11 };
 
-export function SpendingByMonthChart({ data }: SpendingByMonthChartProps) {
+export function SpendingByMonthChart({ data, currency }: SpendingByMonthChartProps) {
   return (
     <BarChart
       responsive
@@ -38,7 +40,7 @@ export function SpendingByMonthChart({ data }: SpendingByMonthChartProps) {
         minTickGap={2}
       />
       <YAxis
-        tickFormatter={(value: number) => formatMoneyCompact(value)}
+        tickFormatter={(value: number) => formatMoneyCompact(value, currency)}
         tick={axisTick}
         tickLine={false}
         axisLine={false}
@@ -55,7 +57,7 @@ export function SpendingByMonthChart({ data }: SpendingByMonthChartProps) {
           return (
             <div className="rounded-control border border-line bg-surface px-3 py-2 text-sm shadow-lg">
               <p className="text-muted">{point.fullLabel}</p>
-              <p className="font-semibold text-ink tabular-nums">{formatMoney(point.totalMinor)}</p>
+              <p className="font-semibold text-ink tabular-nums">{formatMoney(point.totalMinor, currency)}</p>
             </div>
           );
         }}

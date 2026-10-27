@@ -25,6 +25,7 @@ describe("toSubscriptionFormValues", () => {
         id: "0b6f1c5e-7f43-4d2a-9a52-2a3c4d5e6f70",
         name: "Облако",
         priceMinor: 14990,
+        currency: "EUR",
         billingPeriod: "yearly",
         category: "cloud",
         startDate: "2025-03-01",
@@ -32,6 +33,7 @@ describe("toSubscriptionFormValues", () => {
     ).toEqual({
       name: "Облако",
       price: "149,90",
+      currency: "EUR",
       billingPeriod: "yearly",
       category: "cloud",
       startDate: "2025-03-01",

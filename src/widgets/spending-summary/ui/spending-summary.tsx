@@ -1,17 +1,20 @@
 import { getSpendingSummary, type Subscription } from "@/entities/subscription";
+import type { Currency } from "@/shared/config";
 import { formatMoney } from "@/shared/lib";
 import { Card } from "@/shared/ui/card";
 
 interface SpendingSummaryProps {
+  /** Подписки с ценами в валюте currency. */
   subscriptions: Subscription[];
+  currency: Currency;
 }
 
 /** Сводка: траты в месяц и в год, количество подписок. */
-export function SpendingSummary({ subscriptions }: SpendingSummaryProps) {
+export function SpendingSummary({ subscriptions, currency }: SpendingSummaryProps) {
   const summary = getSpendingSummary(subscriptions);
   const items = [
-    { label: "В месяц", value: formatMoney(summary.monthlyMinor) },
-    { label: "В год", value: formatMoney(summary.yearlyMinor) },
+    { label: "В месяц", value: formatMoney(summary.monthlyMinor, currency) },
+    { label: "В год", value: formatMoney(summary.yearlyMinor, currency) },
     { label: "Активных подписок", value: String(summary.activeCount) },
   ];
 

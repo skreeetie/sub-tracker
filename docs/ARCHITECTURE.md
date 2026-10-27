@@ -74,11 +74,13 @@ sub-tracker/
 │   │   ├── auth/                    # login (демо) / logout
 │   │   ├── create-subscription/
 │   │   ├── edit-subscription/
-│   │   └── delete-subscription/
+│   │   ├── delete-subscription/
+│   │   └── change-display-currency/ # выбор основной валюты в профиле
 │   ├── entities/
 │   │   ├── session/                 # getCurrentUser(), работа с cookie
 │   │   ├── user/
-│   │   └── subscription/            # типы, категории, расчёт дат и стоимости, запросы
+│   │   ├── subscription/            # типы, категории, расчёт дат и стоимости, запросы
+│   │   └── exchange-rate/           # курсы ЦБ, пересчёт сумм между валютами
 │   └── shared/
 │       ├── ui/                      # Button, Input, Card, Modal, ...
 │       ├── lib/                     # date, money, cn, ...
@@ -101,6 +103,7 @@ sub-tracker/
 | `id` | `uuid` | PK, `default gen_random_uuid()` |
 | `email` | `text` | `NOT NULL`, `UNIQUE` |
 | `name` | `text` | `NOT NULL` |
+| `display_currency` | enum `currency` | `NOT NULL`, `default 'RUB'` — основная валюта: в неё пересчитываются итоги |
 | `created_at` | `timestamptz` | `NOT NULL`, `default now()` |
 
 ### `subscriptions`
@@ -110,12 +113,24 @@ sub-tracker/
 | `id` | `uuid` | PK, `default gen_random_uuid()` |
 | `user_id` | `uuid` | `NOT NULL`, FK → `users.id` `ON DELETE CASCADE`, **индекс** |
 | `name` | `text` | `NOT NULL`, длина 1–100 |
-| `price_minor` | `integer` | `NOT NULL`, `CHECK (price_minor > 0)` — цена в копейках |
+| `price_minor` | `integer` | `NOT NULL`, `CHECK (price_minor > 0)` — цена в минимальных единицах валюты подписки (копейки, центы) |
+| `currency` | enum `currency` | `NOT NULL`, `default 'RUB'` — `'RUB' \| 'USD' \| 'EUR' \| 'GBP' \| 'CNY' \| 'KZT' \| 'TRY'` |
 | `billing_period` | enum `billing_period` | `'monthly' \| 'yearly'` |
 | `category` | enum `subscription_category` | `'video' \| 'music' \| 'software' \| 'cloud' \| 'games' \| 'education' \| 'other'` |
 | `start_date` | `date` | `NOT NULL` |
 | `created_at` | `timestamptz` | `NOT NULL`, `default now()` |
 | `updated_at` | `timestamptz` | `NOT NULL`, `default now()`, обновляется при изменении |
+
+### `exchange_rates`
+
+Последний полученный курс ЦБ РФ — кэш и запасной вариант, если сервис курсов недоступен.
+
+| Поле | Тип | Ограничения |
+|---|---|---|
+| `currency` | enum `currency` | PK |
+| `rub_per_unit` | `double precision` | `NOT NULL`, `CHECK (rub_per_unit > 0)` — рублей за 1 единицу валюты (с учётом номинала ЦБ) |
+| `rates_date` | `date` | `NOT NULL` — дата курса ЦБ |
+| `updated_at` | `timestamptz` | `NOT NULL`, `default now()` — когда курс получен |
 
 Имена таблиц и колонок — `snake_case` в нижнем регистре, в TypeScript — `camelCase` (маппинг через `casing: "snake_case"` в Drizzle).
 
@@ -123,6 +138,7 @@ sub-tracker/
 
 - **Следующая дата списания** — от `start_date` шагами по периоду до первой даты ≥ сегодня. Если дня нет в месяце (31 января → февраль) — берётся последний день месяца.
 - **Месячная стоимость** — `monthly`: `price`, `yearly`: `price / 12`.
+- **Пересчёт в основную валюту** — `сумма × курс_из / курс_в` (курсы — рублей за единицу), округление до минимальной единицы. Каждая подписка пересчитывается в основную валюту до агрегаций; траты прошлых месяцев — по текущему курсу.
 - **Траты по месяцам** — сумма фактических списаний, попавших в каждый месяц, за последние 12 месяцев включая текущий (годовая подписка — целиком в месяц списания). Учитываются только списания по сегодняшний день включительно — будущие даты текущего месяца не входят.
 - **Траты по категориям** — сумма месячных стоимостей, сгруппированная по `category`.
 - **Активные подписки** — все подписки пользователя, включая начинающиеся в будущем: статуса и даты окончания в модели нет.
@@ -133,8 +149,8 @@ sub-tracker/
 
 ## 4. Ключевые решения
 
-1. **Деньги — целые числа в минимальных единицах** (`price_minor`, копейки). Никаких `float` для денег; форматирование — через `Intl.NumberFormat` в `shared/lib/money`.
-   В MVP одна валюта — **рубль (₽)**, поэтому колонки валюты нет; валюта задаётся константой в `shared/config`.
+1. **Деньги — целые числа в минимальных единицах** (`price_minor`: копейки, центы). Никаких `float` для денег; форматирование — через `Intl.NumberFormat` в `shared/lib/money`, валюта передаётся явно.
+   У всех поддерживаемых валют две цифры после запятой. Валюта подписки — колонка `currency`; список валют — `as const` массив в `shared/config/subscription-enums.ts` (как категории), подписи — в `shared/config/currencies.ts`.
 2. **Даты подписок — тип `date` без времени.** Расчёты делаются в календарных датах (год-месяц-день), а не в timestamp — это убирает ошибки часовых поясов.
 3. **Категории и периоды — Postgres enum + `as const` массив в коде** (единый источник для формы, валидации и графиков). Массивы лежат в `shared/config/subscription-enums.ts` (файл без зависимостей): их импортирует схема Drizzle (относительным путём) и клиентский код (через `@/shared/config`). Добавление категории = миграция.
 4. **Чтение данных — в Server Components** напрямую через функции из `entities/*/api`. **Мутации — Server Actions** в `features/*/api` с серверной валидацией и `revalidatePath`. Отдельные REST-эндпоинты не нужны.
@@ -158,6 +174,8 @@ sub-tracker/
 16. **Правило steiger `fsd/insignificant-slice` отключено.** Слой страниц называется `views` (не `pages`), steiger его не анализирует и не видит ссылок из него — правило помечало бы используемые слайсы как лишние.
 17. **Форма подписки — общая, в `entities/subscription/ui`.** Слайсы `features` не импортируют друг друга, поэтому поля, клиентская валидация и состояние формы (`SubscriptionFormState`) лежат в сущности, а `features/create-subscription` и `features/edit-subscription` передают в неё свой server action. id редактируемой подписки привязывается через `bind`, приходит от клиента и проверяется в action (uuid + `user_id`).
 18. **Графики.** Траты по месяцам — столбчатый график Recharts (клиентский компонент; данные и подписи считаются на сервере). Траты по категориям — HTML-полосы одного цвета с подписями и суммами: подпись не обрезается на мобильных и не нужна палитра на 7 категорий. Цвета графиков — дизайн-токены из `globals.css` (`var(--accent)`, `var(--line)`, `var(--muted)`), поэтому тёмная тема работает без отдельной настройки.
+19. **Курсы валют — ЦБ РФ через cbr-xml-daily.ru** (`https://www.cbr-xml-daily.ru/daily_json.js`, без ключа; cbr.ru напрямую может не отвечать на зарубежные IP Vercel). Таблица `exchange_rates` — кэш: если курсы свежее 6 часов, они берутся из БД, иначе запрашиваются у сервиса (таймаут 3 с) и сохраняются. Сервис недоступен — используется последний сохранённый курс; курсов нет вовсе — подписки в других валютах не входят в итоги, дашборд предупреждает. Ответ сервиса проверяется Zod-схемой. Код — `entities/exchange-rate`.
+20. **Основная валюта — у пользователя** (`users.display_currency`), меняется в профиле (`features/change-display-currency`). Дашборд пересчитывает подписки в неё до агрегаций, поэтому функции агрегации работают с одной валютой.
 
 ## 5. Зависимости
 
@@ -173,6 +191,8 @@ sub-tracker/
 | `server-only` | защита серверного кода от попадания в клиент | 4 |
 | `tsx` | запуск TS-скриптов (сид) | 4 |
 | `recharts` | графики на дашборде | 8 |
+
+Внешние сервисы: курсы ЦБ РФ — cbr-xml-daily.ru (HTTP-запрос без пакета, этап 10).
 
 Любые другие зависимости — только после согласования.
 
