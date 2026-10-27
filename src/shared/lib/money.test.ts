@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMoney, parseMoneyToMinor } from "./money";
+import { formatMoney, formatMoneyCompact, formatMoneyInput, parseMoneyToMinor } from "./money";
 
 // Intl ставит неразрывные пробелы — для сравнения заменяем их обычными.
 const normalizeSpaces = (value: string) => value.replace(/\s/g, " ");
@@ -32,5 +32,31 @@ describe("formatMoney", () => {
 
   it("разделяет тысячи", () => {
     expect(normalizeSpaces(formatMoney(599000))).toBe("5 990 ₽");
+  });
+});
+
+describe("formatMoneyInput", () => {
+  it.each([
+    [39900, "399"],
+    [39990, "399,90"],
+    [39905, "399,05"],
+    [50, "0,50"],
+    [129900, "1299"],
+  ])("%i копеек → %j", (minor, expected) => {
+    expect(formatMoneyInput(minor)).toBe(expected);
+  });
+
+  it.each([39900, 39990, 5, 100_000_000])("разбирается обратно в те же %i копеек", (minor) => {
+    expect(parseMoneyToMinor(formatMoneyInput(minor))).toBe(minor);
+  });
+});
+
+describe("formatMoneyCompact", () => {
+  it.each([
+    [50000, "500 ₽"],
+    [123400, "1,2 тыс. ₽"],
+    [1250000, "12,5 тыс. ₽"],
+  ])("%i копеек → %j", (minor, expected) => {
+    expect(normalizeSpaces(formatMoneyCompact(minor))).toBe(expected);
   });
 });

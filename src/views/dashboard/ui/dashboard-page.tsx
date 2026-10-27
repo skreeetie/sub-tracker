@@ -1,52 +1,50 @@
 import Link from "next/link";
 import { requireUser } from "@/entities/session";
-import { routes } from "@/shared/config";
+import { getUserSubscriptions } from "@/entities/subscription/index.server";
+import { appTimeZone, routes } from "@/shared/config";
+import { getTodayIsoDate } from "@/shared/lib";
 import { buttonClassName } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { EmptyState } from "@/shared/ui/empty-state";
-import { IconCalendar, IconChart, IconPlus } from "@/shared/ui/icons";
+import { IconChart, IconPlus } from "@/shared/ui/icons";
 import { PageHeader } from "@/shared/ui/page-header";
-
-const summary = [
-  { label: "В месяц", value: "0 ₽" },
-  { label: "В год", value: "0 ₽" },
-  { label: "Активных подписок", value: "0" },
-] as const;
+import { SpendingByCategory } from "@/widgets/spending-by-category";
+import { SpendingByMonth } from "@/widgets/spending-by-month";
+import { SpendingSummary } from "@/widgets/spending-summary";
+import { UpcomingRenewals } from "@/widgets/upcoming-renewals";
 
 export async function DashboardPage() {
-  await requireUser();
+  const user = await requireUser();
+  const subscriptions = await getUserSubscriptions(user.id);
+  const today = getTodayIsoDate(appTimeZone);
 
   return (
     <>
       <PageHeader title="Дашборд" description="Сводка по всем вашим подпискам" />
-      <div className="grid gap-4">
-        <div className="grid gap-4 sm:grid-cols-3">
-          {summary.map((item) => (
-            <Card key={item.label}>
-              <p className="text-sm text-muted">{item.label}</p>
-              <p className="mt-2 font-display text-2xl font-semibold tabular-nums">{item.value}</p>
-            </Card>
-          ))}
+      {subscriptions.length > 0 ? (
+        <div className="grid gap-4">
+          <SpendingSummary subscriptions={subscriptions} />
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <SpendingByMonth subscriptions={subscriptions} today={today} />
+            <UpcomingRenewals subscriptions={subscriptions} today={today} />
+          </div>
+          <SpendingByCategory subscriptions={subscriptions} />
         </div>
-        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-          <Card title="Траты по месяцам" description="Фактические списания за последние 12 месяцев">
-            <EmptyState
-              icon={<IconChart />}
-              title="Пока нечего показать"
-              description="График появится, когда вы добавите первую подписку."
-              action={
-                <Link href={routes.newSubscription} className={buttonClassName()}>
-                  <IconPlus className="size-4" />
-                  Добавить подписку
-                </Link>
-              }
-            />
-          </Card>
-          <Card title="Скоро продление" description="Списания в ближайшие 7 дней">
-            <EmptyState icon={<IconCalendar />} title="Ближайших списаний нет" />
-          </Card>
-        </div>
-      </div>
+      ) : (
+        <Card>
+          <EmptyState
+            icon={<IconChart />}
+            title="Пока нечего показать"
+            description="Добавьте первую подписку — здесь появятся траты по месяцам и категориям и ближайшие списания."
+            action={
+              <Link href={routes.newSubscription} className={buttonClassName()}>
+                <IconPlus className="size-4" />
+                Добавить подписку
+              </Link>
+            }
+          />
+        </Card>
+      )}
     </>
   );
 }

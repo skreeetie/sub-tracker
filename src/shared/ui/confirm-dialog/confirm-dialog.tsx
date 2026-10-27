@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Button } from "../button";
 import { Modal } from "../modal";
 
@@ -13,6 +14,8 @@ interface ConfirmDialogProps {
   cancelLabel?: string;
   tone?: "primary" | "danger";
   isPending?: boolean;
+  /** Дополнительное содержимое под описанием, например текст ошибки. */
+  children?: ReactNode;
 }
 
 export function ConfirmDialog({
@@ -25,6 +28,7 @@ export function ConfirmDialog({
   cancelLabel = "Отмена",
   tone = "primary",
   isPending = false,
+  children,
 }: ConfirmDialogProps) {
   return (
     <Modal
@@ -42,6 +46,8 @@ export function ConfirmDialog({
           </Button>
         </>
       }
-    />
+    >
+      {children}
+    </Modal>
   );
 }

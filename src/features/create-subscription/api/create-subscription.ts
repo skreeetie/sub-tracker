@@ -3,27 +3,21 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/entities/session";
-import { validateSubscriptionForm, type SubscriptionFormField } from "@/entities/subscription";
+import {
+  readSubscriptionFormValues,
+  validateSubscriptionForm,
+  type SubscriptionFormState,
+} from "@/entities/subscription";
 import { createSubscription } from "@/entities/subscription/index.server";
 import { routes } from "@/shared/config";
-import type { CreateSubscriptionState } from "../model/form-state";
-
-const fields: SubscriptionFormField[] = ["name", "price", "billingPeriod", "category", "startDate"];
 
 export async function createSubscriptionAction(
-  _previousState: CreateSubscriptionState,
+  _previousState: SubscriptionFormState,
   formData: FormData,
-): Promise<CreateSubscriptionState> {
+): Promise<SubscriptionFormState> {
   const user = await requireUser();
 
-  const values: Partial<Record<SubscriptionFormField, string>> = {};
-  for (const field of fields) {
-    const value = formData.get(field);
-    if (typeof value === "string") {
-      values[field] = value;
-    }
-  }
-
+  const values = readSubscriptionFormValues(formData);
   const result = validateSubscriptionForm(values);
   if (!result.success) {
     return { errors: result.errors, values };

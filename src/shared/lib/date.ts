@@ -74,3 +74,64 @@ export function formatDateLong(value: IsoDate, locale: string = appLocale): stri
     timeZone: "UTC",
   }).format(new Date(Date.UTC(date.year, date.month - 1, date.day)));
 }
+
+/** Месяц в формате "YYYY-MM". */
+export type IsoMonth = string;
+
+function toUtcDate({ year, month, day }: CalendarDate): Date {
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function fromUtcDate(date: Date): CalendarDate {
+  return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1, day: date.getUTCDate() };
+}
+
+export function addDays(date: CalendarDate, days: number): CalendarDate {
+  const result = toUtcDate(date);
+  result.setUTCDate(result.getUTCDate() + days);
+  return fromUtcDate(result);
+}
+
+const msPerDay = 24 * 60 * 60 * 1000;
+
+/** Количество календарных дней от from до to (отрицательное, если to раньше). */
+export function daysBetween(from: CalendarDate, to: CalendarDate): number {
+  return Math.round((toUtcDate(to).getTime() - toUtcDate(from).getTime()) / msPerDay);
+}
+
+/** "2026-10-29" → "2026-10" */
+export function toIsoMonth(value: IsoDate): IsoMonth {
+  return value.slice(0, 7);
+}
+
+function monthToUtcDate(value: IsoMonth): Date | null {
+  const date = parseIsoDate(`${value}-01`);
+  return date ? toUtcDate(date) : null;
+}
+
+/** "2026-10" → "окт." */
+export function formatMonthShort(value: IsoMonth, locale: string = appLocale): string {
+  const date = monthToUtcDate(value);
+  return date ? new Intl.DateTimeFormat(locale, { month: "short", timeZone: "UTC" }).format(date) : value;
+}
+
+/** "2026-10" → "октябрь 2026 г." */
+export function formatMonthLong(value: IsoMonth, locale: string = appLocale): string {
+  const date = monthToUtcDate(value);
+  return date
+    ? new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(date)
+    : value;
+}
+
+/** "2026-10-29" → "29 окт." */
+export function formatDateShort(value: IsoDate, locale: string = appLocale): string {
+  const date = parseIsoDate(value);
+  return date
+    ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "UTC" }).format(toUtcDate(date))
+    : value;
+}
+
+/** 0 → "сегодня", 1 → "завтра", 5 → "через 5 дней" */
+export function formatDaysFromNow(days: number, locale: string = appLocale): string {
+  return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(days, "day");
+}

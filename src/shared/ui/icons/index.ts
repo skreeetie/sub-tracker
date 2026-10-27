@@ -5,6 +5,8 @@ export {
   IconChevronDown,
   IconList,
   IconLogout,
+  IconPencil,
   IconPlus,
+  IconTrash,
   IconUser,
 } from "./icons";

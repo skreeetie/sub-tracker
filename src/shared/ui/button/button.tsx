@@ -3,7 +3,8 @@ import { cn } from "@/shared/lib";
 import { Spinner } from "../spinner";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
-export type ButtonSize = "sm" | "md";
+/** icon — квадратная кнопка под одну иконку (подпись — через aria-label). */
+export type ButtonSize = "sm" | "md" | "icon";
 
 const variantClassNames: Record<ButtonVariant, string> = {
   primary: "bg-accent text-on-accent hover:bg-accent-hover",
@@ -15,6 +16,7 @@ const variantClassNames: Record<ButtonVariant, string> = {
 const sizeClassNames: Record<ButtonSize, string> = {
   sm: "h-8 px-3 text-sm",
   md: "h-10 px-4 text-sm",
+  icon: "size-8 text-sm",
 };
 
 interface ButtonStyleOptions {
