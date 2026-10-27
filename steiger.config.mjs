@@ -4,9 +4,8 @@ import { defineConfig } from "steiger";
 export default defineConfig([
   ...fsd.configs.recommended,
   {
-    // entities/user используется ещё и через @x из entities/session,
-    // но insignificant-slice такие ссылки не учитывает.
-    files: ["./src/entities/user", "./src/entities/user/**"],
+    // Слой страниц называется views (src/pages конфликтует с Next.js) и steiger его не анализирует.
+    // Поэтому ссылки из views не учитываются, и правило помечает используемые слайсы как лишние.
     rules: {
       "fsd/insignificant-slice": "off",
     },

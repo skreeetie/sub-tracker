@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { requireUser } from "@/entities/session";
-import { Button } from "@/shared/ui/button";
+import { routes } from "@/shared/config";
+import { buttonClassName } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { EmptyState } from "@/shared/ui/empty-state";
 import { IconCalendar, IconChart, IconPlus } from "@/shared/ui/icons";
@@ -33,10 +35,10 @@ export async function DashboardPage() {
               title="Пока нечего показать"
               description="График появится, когда вы добавите первую подписку."
               action={
-                <Button disabled>
+                <Link href={routes.newSubscription} className={buttonClassName()}>
                   <IconPlus className="size-4" />
                   Добавить подписку
-                </Button>
+                </Link>
               }
             />
           </Card>
