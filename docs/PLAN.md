@@ -36,9 +36,9 @@
 ## Этап 3. Деплой на Vercel
 
 - [x] Пользователь импортирует репозиторий `skreeetie/sub-tracker` в Vercel (Framework — Next.js, команды по умолчанию).
-- [ ] Переменная `ENABLE_EXPERIMENTAL_COREPACK=1` в проекте Vercel — сборка идёт на pnpm из поля `packageManager` (12.x), а не на версии, угаданной по lock-файлу.
-- [ ] Node.js 24.x в настройках проекта.
-- [ ] Регион функций — Frankfurt (`fra1`), рядом с базой.
+- [x] Переменная `ENABLE_EXPERIMENTAL_COREPACK=1` в проекте Vercel — сборка идёт на pnpm из поля `packageManager` (12.x), а не на версии, угаданной по lock-файлу. Проверено по логу сборки: pnpm 12.
+- [x] Node.js 24.x в настройках проекта.
+- [x] Регион функций — Frankfurt (`fra1`), рядом с базой.
 - [x] Первый production-деплой: https://sub-tracker-iota.vercel.app
 - [x] Раздел «Деплой» в `AGENTS.md`.
 
