@@ -30,6 +30,7 @@
 | `pnpm build` | Production-сборка (включает проверку типов) |
 | `pnpm start` | Запуск production-сборки |
 | `pnpm lint` | ESLint |
+| `pnpm lint:fsd` | Проверка правил FSD (steiger, конфиг — `steiger.config.mts`; слой `views` не проверяется) |
 | `pnpm test` | Unit-тесты (Vitest, один прогон) |
 | `pnpm test:watch` | Unit-тесты в watch-режиме |
 

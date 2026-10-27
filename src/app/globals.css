@@ -1,6 +1,82 @@
 @import "tailwindcss";
 
+/* Дизайн-токены. Светлая тема — по умолчанию, тёмная — по prefers-color-scheme. */
+:root {
+  --canvas: #f3f4f8;
+  --surface: #ffffff;
+  --surface-muted: #eceef4;
+  --ink: #161a33;
+  --muted: #5d6382;
+  --line: #dde0ea;
+  --accent: #2f3bd6;
+  --accent-hover: #2530b8;
+  --accent-soft: #e6e8fd;
+  --on-accent: #ffffff;
+  --warning: #8f5400;
+  --warning-soft: #fdf0d5;
+  --danger: #c0262d;
+  --danger-hover: #a11f25;
+  --danger-soft: #fbe4e5;
+  --success: #12704f;
+  --success-soft: #dcf3e9;
+  --overlay: rgb(14 16 32 / 0.45);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #0e1020;
+    --surface: #161930;
+    --surface-muted: #1f2340;
+    --ink: #e7e9f6;
+    --muted: #9ba1c0;
+    --line: #2b3052;
+    --accent: #8790ff;
+    --accent-hover: #a1a8ff;
+    --accent-soft: #252a5c;
+    --on-accent: #0e1020;
+    --warning: #f2b544;
+    --warning-soft: #3a2c10;
+    --danger: #ff7a7f;
+    --danger-hover: #ff9a9e;
+    --danger-soft: #3d1a1f;
+    --success: #4fd1a0;
+    --success-soft: #12352a;
+    --overlay: rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-overlay: var(--overlay);
+
+  --font-sans: var(--font-onest);
+  --font-display: var(--font-unbounded);
+}
+
+@theme {
+  --radius-control: 0.625rem;
+  --radius-card: 1rem;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
 }
