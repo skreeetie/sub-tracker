@@ -1,0 +1,3 @@
+allowBuilds:
+  # postinstall только докачивает нативный бинарник, он уже приходит через optionalDependencies
+  unrs-resolver: false

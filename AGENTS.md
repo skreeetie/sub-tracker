@@ -1,3 +1,8 @@
+# AGENTS.md
+
+Основные инструкции для агента лежат в [`docs/AGENTS.md`](docs/AGENTS.md) — прочитай их перед любой работой.
+Там же ссылки на `docs/SPEC.md`, `docs/PLAN.md` и `docs/ARCHITECTURE.md`.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
